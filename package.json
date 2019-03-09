@@ -6,6 +6,7 @@
     "axios": "^0.18.0",
     "d3": "3.5.17",
     "react": "^16.8.1",
+    "react-ace": "^6.4.0",
     "react-dom": "^16.8.1",
     "react-json-editor-ajrm": "^2.5.9",
     "react-jsonschema-form": "^1.2.1",

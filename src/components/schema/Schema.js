@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import Form from "react-jsonschema-form";
-import JSONInput from 'react-json-editor-ajrm';
+import brace from 'brace';
+import AceEditor from 'react-ace';
+import 'brace/mode/json';
+import 'brace/theme/github';
 import Api from "../../api";
 import { Link } from "react-router-dom";
 
@@ -20,7 +23,6 @@ export default class Schema extends Component {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",
       "properties": {
-
       }
       };
       const patched_schema = Api.getPatchSchema(schema);
@@ -105,11 +107,16 @@ export default class Schema extends Component {
   };
 
   onChange = (jsondata) => {
-    if(jsondata.error === false) {
-      this.state.schema.properties = JSON.parse(jsondata.json);
-      this.state.schema_enlarged.properties = jsondata.jsObject;
+    console.log(jsondata);
+    try {
+      let props = JSON.parse(jsondata);
+      console.log("ss",props);
+      this.state.schema.properties = props;
+      this.state.schema_enlarged.properties = props;
       this.setState({ patched_schema: Api.getPatchSchema(this.state.schema_enlarged)});
-    }
+      } catch (e) {
+        console.log(false);
+      }
   };
 
   onCancel = (e) => {
@@ -148,8 +155,8 @@ export default class Schema extends Component {
       <React.Fragment>
           <header className="row">
               <div className="col-md-12">
-              <form className="form-inline text-right" autocomplete="off">
-              <input className="form-control mb-2 mr-sm-2 pull-left" type="text" name="dsl" placeholder="Field DSL"/>
+              <form className="form-inline" autocomplete="off">
+              
               {idText}
                   <input className="form-control mb-2 mr-sm-2" type="text" name="title" value={this.state.schema.title} onChange={this.handleChange} placeholder="Title"/>
                   <label className="form-check-label" for="title">
@@ -157,23 +164,26 @@ export default class Schema extends Component {
                   </label>
                   <input  className="form-control mb-6 mr-sm-6" type="text" name="description" value={this.state.schema.description} onChange={this.handleChange} placeholder="Description"/>
                   {refText}
+                  <input className="form-control mb-2 mr-sm-2 pull-right" type="text" name="dsl" placeholder="Field DSL"/>
               </form>
               </div>
           </header>
           <div className="row">
-              <div className="col-md-4">
-                <JSONInput
-                    id          = 'a_unique_id'
-                    placeholder = {this.state.schema.properties}
-                    height      = '390px'
-                    width       = '100%'
-                    onChange    = {this.onChange}
-                />
-              </div>
-              <div className="col-md-8">
+              
+              <div className="col-md-7">
                 <Form schema={this.state.patched_schema} onSubmit={this.onSubmit} FieldTemplate={Api.Tpl}>
                 <div></div>
                 </Form>
+              </div>
+              <div className="col-md-5">
+              <AceEditor
+                mode="json"
+                theme="github"
+                value={JSON.stringify(this.state.schema.properties)}
+                onChange={this.onChange}
+                name="UNIQUE_ID_OF_DIV"
+                editorProps={{$blockScrolling: true}}
+              />
               </div>
           </div>
 
