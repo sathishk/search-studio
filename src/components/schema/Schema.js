@@ -11,6 +11,7 @@ export default class Schema extends Component {
 
   state = {
     schema: {},
+    props_text: "",
     schema_enlarged: {},
     patched_schema:{},
     isAdd: false
@@ -26,7 +27,7 @@ export default class Schema extends Component {
       }
       };
       const patched_schema = Api.getPatchSchema(schema);
-      this.setState({ isAdd:true,schema:schema,schema_enlarged: patched_schema, patched_schema: patched_schema});
+      this.setState({ props_text:"{}",isAdd:true,schema:schema,schema_enlarged: patched_schema, patched_schema: patched_schema});
     }
     else if(window.location.href.endsWith("_addNew") ) {
       const schema = {
@@ -58,14 +59,14 @@ export default class Schema extends Component {
       //console.log(schema_enlarged);
       const patched_schema = Api.getPatchSchema(schema_enlarged);
       //console.log(patched_schema);
-      this.setState({ isAdd:true, schema:data,schema_enlarged: schema_enlarged,patched_schema: patched_schema});
+      this.setState({ props_text:"{}",isAdd:true, schema:data,schema_enlarged: schema_enlarged,patched_schema: patched_schema});
     }
     else {
       const axis_schema = await Api.get(`/schema/${schemaId}?enlarged`);
       var schema_enlarged = axis_schema.data;
       const patched_schema = Api.getPatchSchema(schema_enlarged);
       const {data} = await Api.get(`/schema/${schemaId}`);
-      this.setState({ isAdd:false, schema:data,schema_enlarged: schema_enlarged,patched_schema: patched_schema});
+      this.setState({ props_text:JSON.stringify(data.properties, undefined, 2), isAdd:false, schema:data,schema_enlarged: schema_enlarged,patched_schema: patched_schema});
     }
   };
 
@@ -117,14 +118,13 @@ export default class Schema extends Component {
       } catch (e) {
         console.log(false);
       }
+      this.setState({ props_text: jsondata});
   };
 
   onCancel = (e) => {
     e.preventDefault()
     window.location = '/';
   };
-
-
 
   handleChange = (event) => {
     this.state.schema[event.target.name] = event.target.value;
@@ -139,7 +139,7 @@ export default class Schema extends Component {
     if (isAdd) {
         idText =
         <React.Fragment>
-        <input type="text" className="form-control mb-2 mr-sm-2" type="text" name="$id" value={this.state.schema["$id"]} onChange={this.handleChange} placeholder="Id"/>
+        <input type="text" className="form-control" type="text" name="$id" value={this.state.schema["$id"]} onChange={this.handleChange} placeholder="Id"/>
         <label className="form-check-label" for="title">
           &nbsp;&nbsp;&nbsp;&nbsp; with title &nbsp;&nbsp;&nbsp;&nbsp;
         </label>
@@ -158,13 +158,13 @@ export default class Schema extends Component {
               <form className="form-inline" autocomplete="off">
               
               {idText}
-                  <input className="form-control mb-2 mr-sm-2" type="text" name="title" value={this.state.schema.title} onChange={this.handleChange} placeholder="Title"/>
+                  <input className="form-control" type="text" name="title" value={this.state.schema.title} onChange={this.handleChange} placeholder="Title"/>
                   <label className="form-check-label" for="title">
                     &nbsp;&nbsp;&nbsp;&nbsp; described as &nbsp;&nbsp;&nbsp;&nbsp;
                   </label>
-                  <input  className="form-control mb-6 mr-sm-6" type="text" name="description" value={this.state.schema.description} onChange={this.handleChange} placeholder="Description"/>
+                  <input  className="form-control" type="text" name="description" value={this.state.schema.description} onChange={this.handleChange} placeholder="Description"/>
                   {refText}
-                  <input className="form-control mb-2 mr-sm-2 pull-right" type="text" name="dsl" placeholder="Field DSL"/>
+                  <input className="form-control pull-right" style={{width: '40%'}} type="text" name="dsl" placeholder="Field DSL"/>
               </form>
               </div>
           </header>
@@ -179,7 +179,7 @@ export default class Schema extends Component {
               <AceEditor
                 mode="json"
                 theme="github"
-                value={JSON.stringify(this.state.schema.properties)}
+                value={this.state.props_text}
                 onChange={this.onChange}
                 name="UNIQUE_ID_OF_DIV"
                 editorProps={{$blockScrolling: true}}

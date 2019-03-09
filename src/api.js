@@ -8,7 +8,6 @@ let api = axios.create({
   headers:{}
 });
 const APIModel = {
-
   Tpl: (props) => {
   const {id, classNames, label, help, required, description, rawErrors=[], children} = props;
   return (
